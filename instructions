@@ -1,0 +1,16 @@
+# turn on the redis from brew
+brew services start redis
+# turn on the redis from config file, which can define passwords etc.
+redis-server /usr/local/etc/redis.conf
+
+# enter redis terminal
+redis-cli
+
+# stop redis services
+brew services stop redis
+
+# restart redis services
+brew services restart redis
+
+# show the redis elements
+redis-dump -u :passpass@localhost:6379
