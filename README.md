@@ -1,2 +1,2 @@
 # SmartProxy
-A auto spider for proxy IP. 
+> A complete-auto IP pool, provider IP location visualization. 
