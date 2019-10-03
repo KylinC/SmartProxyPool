@@ -13,7 +13,7 @@ def get_conn():
 
 @app.route('/')
 def index():
-    return '<h2>Welcome to Proxy Pool System</h2>'
+    return '<h1>SmartProxy System</h1>'
 
 
 @app.route('/random')
