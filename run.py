@@ -1,4 +1,4 @@
-from smartProxy.scheduler import Scheduler
+from SmartProxy.scheduler import Scheduler
 import sys
 import io
 

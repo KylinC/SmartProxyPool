@@ -1,4 +1,4 @@
-from flask import Flask, g
+from flask import Flask, g, render_template, request, url_for, Response
 from .database import RedisClient
 
 __all__ = ['app']
@@ -11,9 +11,9 @@ def get_conn():
     return g.redis
 
 
-@app.route('/')
+@app.route('/', methods=['POST','GET'])
 def index():
-    return '<h1>SmartProxy System</h1>'
+    return render_template('index.html')
 
 
 @app.route('/random')
