@@ -9,8 +9,8 @@ TESTER_CYCLE = 20
 GETTER_CYCLE = 300
 
 # API配置
-API_HOST = '0.0.0.0'
-API_PORT = 5555
+API_HOST = '127.0.0.1'
+API_PORT = 5000
 
 # 目标网站
 TEST_URL = 'http://www.baidu.com'
@@ -41,3 +41,6 @@ VALID_STATUS_CODES = [200, 302]
 
 # 最大批测试量
 BATCH_TEST_SIZE = 10
+
+# 百度AK
+AK = "YcWN18KNNobNMU9NPt7NIGUF3eMdR1NS"

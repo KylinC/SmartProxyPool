@@ -11,6 +11,8 @@
     <script src="../static/js/jquery.js"></script>
     <script src="../static/js/echarts.min.js"></script>
     <script type="text/javascript" src="../static/js/china.js"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=xKGulY4GOjX2uZ3sxyRHGE3IVq5OrQtx&__ec_v__=20190126"></script>
+    <script type="text/javascript" src="../static/js/bmap.min.js"></script>
 
     <link rel="stylesheet" href="../static/css/bootstrap.css">
     <link rel="stylesheet" href="../static/css/base.css">
@@ -70,40 +72,14 @@
         <div class="header_nav fl">
         </div>
         <div class="header_myself fr t_height">
-            <a class="t_a" href="new1.html"> More &nbsp;</a>
+            <!-- <a class="t_a" href="new1.html"> More &nbsp;</a> -->
         </div>
     </div>
     <!--main-->
     <div class="data_content">
         <div class="data_main">
-            <div class="main_left fl">
-                <div class="left_1">
-                    <ul class="t_btn">
-                        
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <br/>
-                        <li>
-                            <input id = 'param1' type='text' placeholder="SmartProxy"> 
-                            <br/><br/>
-                        </li>
-                            
-                        <li>
-                            <button onclick="update()">Generate</button>
-                        </li>
-                        <br/>
-                        
-                    </ul>
-                </div>
-                
-            </div>
-            <div class="main_center fl">
-                <div class="center_text t_cos0">
+            <div class="main_center">
+                <div class="center_text">
                     <!--左上边框-->
                     <div class="t_line_box">
                         <i class="t_l_line"></i> 
@@ -125,7 +101,7 @@
                         <i class="b_r_line"></i> 
                     </div> 
                     <div class="main_title">
-                         Visualization
+                         Locater
                     </div>
                     <div id="graph1" style="width:100%;height:590px;"></div>
                 </div> 
@@ -135,557 +111,213 @@
 <div style="text-align:center;">
 	<p style="color: white;">Copyright &copy;<script>document.write(new Date().getFullYear());</script>  KylinChen</p>
 </div>
-<script type="text/javascript">
-    var chinaName = {
-        0:'鄂尔多斯',
-        1:'武汉',
-        2:'昆明',
-        3:'重庆',
-        4:'深圳',
-        5:'上海',
-        6:'贵阳',
-        7:'北京',
-        8:'衢州',
-        9:'廊坊',
-        10:'菏泽',
-        11:'攀枝花',
-        12:'威海',
-        13:'承德',
-        14:'厦门',
-        15:'张家界',
-        16:'宜兴',
-        17:'北海',
-        18:'西安',
-        19:'长春'
-    };
+<!-- <script type="text/javascript" src="../static/js/graph.js"></script> -->
 
-    var per = [
-            {id:"11",name:'张珊',job:'学生'},
-            {id:002,name:'李斯',job:'教师'},
-            {id:003,name:'王武',job:'经理'}
-            ]; 
-            
-        function optionFactory(){
-        window.onload = function(){
-            var tbody = document.getElementById('tbMain');
-            
-            for(var i = 0;i < per.length; i++){ //遍历一下json数据
-                var trow = getDataRow(per[i]); //定义一个方法,返回tr数据
-                tbody.appendChild(trow);
-            }
-            
-        }
-            
-        function getDataRow(h){
-        var row = document.createElement('tr'); //创建行
-        
-        var idCell = document.createElement('td'); //创建第一列id
-        idCell.innerHTML = h.id; //填充数据
-        row.appendChild(idCell); //加入行  ，下面类似
-        
-        var nameCell = document.createElement('td');//创建第二列name
-        nameCell.innerHTML = h.name;
-        row.appendChild(nameCell);
-        
-        var jobCell = document.createElement('td');//创建第三列job
-        jobCell.innerHTML = h.job;
-        row.appendChild(jobCell);
-        
-        //到这里，json中的数据已经添加到表格中，下面为每行末尾添加删除按钮
-        
-        var delCell = document.createElement('td');//创建第四列，操作列
-        row.appendChild(delCell);
-        var btnDel = document.createElement('input'); //创建一个input控件
-        btnDel.setAttribute('type','button'); //type="button"
-        btnDel.setAttribute('value','删除'); 
-        
-        //删除操作
-        btnDel.οnclick=function(){
-            if(confirm("确定删除这一行嘛？")){
-                //找到按钮所在行的节点，然后删掉这一行
-                this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
-                //btnDel - td - tr - tbody - 删除(tr)
-                //刷新网页还原。实际操作中，还要删除数据库中数据，实现真正删除
+<script>
+    function relationshipGraph(res) {
+        var myChart = echarts.init(document.getElementById('graph1'));
+        var app = {};
+        option = null;
+        var data = [
+            res
+        ];
+
+        var convertData = function (data) {
+            var res = [];
+            for (var i = 0; i < data.length; i++) {
+                var geoCoord = data[i].lg;
+                if (geoCoord) {
+                    res.push({
+                        name: data[i].ip,
+                        value: geoCoord.concat(data[i].value),
+                    });
                 }
             }
-        delCell.appendChild(btnDel);  //把删除按钮加入td，别忘了
-        
-        return row; //返回tr数据	 
-        }
+            return res;
+        };
+
+        option = {
+            // tooltip : {
+            //     trigger: 'item'
+            // },
+            bmap: {
+                center: [104.114129, 37.550339],
+                zoom: 5,
+                roam: true,
+                mapStyle: {
+                    styleJson: [{
+                        'featureType': 'water',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#d1d1d1'
+                        }
+                    }, {
+                        'featureType': 'land',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#f3f3f3'
+                        }
+                    }, {
+                        'featureType': 'railway',
+                        'elementType': 'all',
+                        'stylers': {
+                            'visibility': 'off'
+                        }
+                    }, {
+                        'featureType': 'highway',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#fdfdfd'
+                        }
+                    }, {
+                        'featureType': 'highway',
+                        'elementType': 'labels',
+                        'stylers': {
+                            'visibility': 'off'
+                        }
+                    }, {
+                        'featureType': 'arterial',
+                        'elementType': 'geometry',
+                        'stylers': {
+                            'color': '#fefefe'
+                        }
+                    }, {
+                        'featureType': 'arterial',
+                        'elementType': 'geometry.fill',
+                        'stylers': {
+                            'color': '#fefefe'
+                        }
+                    }, {
+                        'featureType': 'poi',
+                        'elementType': 'all',
+                        'stylers': {
+                            'visibility': 'off'
+                        }
+                    }, {
+                        'featureType': 'green',
+                        'elementType': 'all',
+                        'stylers': {
+                            'visibility': 'off'
+                        }
+                    }, {
+                        'featureType': 'subway',
+                        'elementType': 'all',
+                        'stylers': {
+                            'visibility': 'off'
+                        }
+                    }, {
+                        'featureType': 'manmade',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#d1d1d1'
+                        }
+                    }, {
+                        'featureType': 'local',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#d1d1d1'
+                        }
+                    }, {
+                        'featureType': 'arterial',
+                        'elementType': 'labels',
+                        'stylers': {
+                            'visibility': 'on'
+                        }
+                    }, {
+                        'featureType': 'boundary',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#fefefe'
+                        }
+                    }, {
+                        'featureType': 'building',
+                        'elementType': 'all',
+                        'stylers': {
+                            'color': '#d1d1d1'
+                        }
+                    }, {
+                        'featureType': 'label',
+                        'elementType': 'labels.text.fill',
+                        'stylers': {
+                            'color': '#aaaaaa'
+                        }
+                    }]
+                }
+            },
+            series : [
+                {
+                    name: 'pm2.5',
+                    type: 'scatter',
+                    coordinateSystem: 'bmap',
+                    data: convertData(data),
+                    symbolSize: function (val) {
+                        return val[2] / 10;
+                    },
+                    label: {
+                        normal: {
+                            formatter: '{b}',
+                            position: 'right',
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'purple'
+                        }
+                    }
+                },
+                {
+                    name: 'Top 5',
+                    type: 'effectScatter',
+                    coordinateSystem: 'bmap',
+                    data: convertData(data.sort(function (a, b) {
+                        return b.value - a.value;
+                    }).slice(0, 6)),
+                    symbolSize: function (val) {
+                        return val[2] / 10;
+                    },
+                    showEffectOn: 'render',
+                    rippleEffect: {
+                        brushType: 'stroke'
+                    },
+                    hoverAnimation: true,
+                    label: {
+                        normal: {
+                            formatter: '{b}',
+                            position: 'right',
+                            show: true
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'purple',
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    zlevel: 1
+                }
+            ]
+        };;
+        myChart.setOption(option);
     }
-     
+    // relationshipGraph();
     $.ajax({
         type: 'get',
         url: 'http://127.0.0.1:5000/data',
-        dataType: "jsonp",  // 指定此次请求是jsonp形式
-        // 【如果不使用jsonp方式，上面 ↑ 就可以那样写】
+        dataType: "jsonp", 
         success: function (res) {
             console.log(res);
-            per.push({id:003,name:'王武',job:'经理'});
-            optionFactory();
+            relationshipGraph(res);
         },
         error: function (msg) {
             console.log(msg);
         }
     });
 </script>
-
-<script type="text/javascript">
-function optionFactory(res,objS,objQ) {
-    var myChart = echarts.init(document.getElementById('graph1'));
-
-    var chinaGeoCoordMap = {
-        0:[109.781327,39.608266],
-        1:[114.31,30.52],
-        2:[102.73,25.04],
-        3:[106.54,29.59],
-        4:[114.07,22.62],
-        5:[121.48,31.22],
-        6:[106.71,26.57],
-        7:[116.46,39.92],
-        8:[118.88,28.97],
-        9:[116.7,39.53],
-        10:[115.480656,35.23375],
-        11:[101.718637,26.582347],
-        12:[122.1,37.5],
-        13:[117.93,40.97],
-        14:[118.1,24.46],
-        15:[110.479191,29.117096],
-        16:[119.82,31.36],
-        17:[109.12,21.49],
-        18:[108.95,34.27],
-        19:[125.35,43.88]
-    };
-
-    var chinaDatas = [
-        [{
-            name: '上海',
-            value: 1
-        }]
-    ];
-    
-    var chinaName = {
-        0:'鄂尔多斯',
-        1:'武汉',
-        2:'昆明',
-        3:'重庆',
-        4:'深圳',
-        5:'上海',
-        6:'贵阳',
-        7:'北京',
-        8:'衢州',
-        9:'廊坊',
-        10:'菏泽',
-        11:'攀枝花',
-        12:'威海',
-        13:'承德',
-        14:'厦门',
-        15:'张家界',
-        16:'宜兴',
-        17:'北海',
-        18:'西安',
-        19:'长春'
-    };
-
-    var convertData = function(data) {
-        var resdata = [];
-        var length=0;
-        for(var keyitem in data){
-            length++;
-        }
-        for(var i = 0; i < length; i++) {
-            var dataItem = data[i];
-            var fromCoord = chinaGeoCoordMap[dataItem[0]];
-            var toCoord = chinaGeoCoordMap[dataItem[1]];
-            if(fromCoord && toCoord) {
-                resdata.push([{
-                    coord: fromCoord,
-                    value: 0
-                }, {
-                    coord: toCoord,
-                }]);
-            }
-        }
-        return resdata;
-    };
-    
-    var series = [];
-    [res].forEach(function(item, i) {
-        series.push({
-                type: 'lines',
-                zlevel: 2,
-                effect: {
-                    show: true,
-                    period: 4, //箭头指向速度，值越小速度越快
-                    trailLength: 0.02, //特效尾迹长度[0,1]值越大，尾迹越长重
-                    symbol: 'arrow', //箭头图标
-                    symbolSize: 5, //图标大小
-                },
-                lineStyle: {
-                    normal: {
-                        width: 1, //尾迹线条宽度
-                        opacity: 1, //尾迹线条透明度
-                        curveness: .1 //尾迹线条曲直度
-                    }
-                },
-                data: convertData(item)
-            }
-        );
-    });
-
-    var set1 = new Set([]);
-    for(var i = 0; i < 20; i++){
-        
-        var list_length=0;
-        for(var keyitem in res){
-            list_length++;
-        }
-
-        for(var j=0; j < list_length; j++){
-            if(i!=objQ && i!=objS && (i==res[j][0] || i==res[j][1])){
-                set1.add(i);
-            }
-        }
-        
-        var node_size=[5,10,5,5,10,10,5,10,5,5,5,5,5,5,5,5,5,10,5,5]
-        
-        
-        if(set1.has(i) && i!=objQ && i!=objS){
-            series.push({
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                zlevel: 2,
-                rippleEffect: { //涟漪特效
-                    period: 4, //动画时间，值越小速度越快
-                    brushType: 'stroke', //波纹绘制方式 stroke, fill
-                    scale: 4 //波纹圆环最大限制，值越大波纹越大
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'right', //显示位置
-                        offset: [5, 0], //偏移设置
-                        formatter: chinaName[i],
-                        fontSize: 13
-                    },
-                    emphasis: {
-                        show: true
-                    }
-                },
-                symbol: 'circle',
-                symbolSize: node_size[i],
-                itemStyle: {
-                    normal: {
-                        show: false,
-                        color: '#f00'
-                    }
-                },
-                data: chinaDatas.map(function() {
-                    return {
-                        value: chinaGeoCoordMap[i].concat(0.3)
-                    };
-                }),
-                
-            });
-        }
-        else if(i==objS){
-            series.push({
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                zlevel: 2,
-                rippleEffect: { //涟漪特效
-                    period: 4, //动画时间，值越小速度越快
-                    brushType: 'stroke', //波纹绘制方式 stroke, fill
-                    scale: 4 //波纹圆环最大限制，值越大波纹越大
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'right', //显示位置
-                        offset: [5, 0], //偏移设置
-                        formatter: chinaName[i],
-                        fontSize: 13
-                    },
-                    emphasis: {
-                        show: true
-                    }
-                },
-                symbol: 'circle',
-                symbolSize: node_size[i],
-                itemStyle: {
-                    normal: {
-                        show: false,
-                        color: '#f00'
-                    }
-                },
-                data: chinaDatas.map(function() {
-                    return {
-                        value: chinaGeoCoordMap[i].concat(0.8)
-                    };
-                }),
-                
-            });
-        }
-        else if(i==objQ){
-            series.push({
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                zlevel: 2,
-                rippleEffect: { //涟漪特效
-                    period: 4, //动画时间，值越小速度越快
-                    brushType: 'stroke', //波纹绘制方式 stroke, fill
-                    scale: 4 //波纹圆环最大限制，值越大波纹越大
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'right', //显示位置
-                        offset: [5, 0], //偏移设置
-                        formatter: chinaName[i],
-                        fontSize: 13
-                    },
-                    emphasis: {
-                        show: true
-                    }
-                },
-                symbol: 'circle',
-                symbolSize: node_size[i],
-                itemStyle: {
-                    normal: {
-                        show: false,
-                        color: '#f00'
-                    }
-                },
-                data: chinaDatas.map(function() {
-                    return {
-                        value: chinaGeoCoordMap[i].concat(0.8)
-                    };
-                }),
-                
-            });
-        }
-        else{
-            series.push({
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                zlevel: 2,
-                rippleEffect: { //涟漪特效
-                    period: 4, //动画时间，值越小速度越快
-                    brushType: 'stroke', //波纹绘制方式 stroke, fill
-                    scale: 4 //波纹圆环最大限制，值越大波纹越大
-                },
-                label: {
-                    normal: {
-                        show: true,
-                        position: 'right', //显示位置
-                        offset: [5, 0], //偏移设置
-                        formatter: chinaName[i],
-                        fontSize: 13
-                    },
-                    emphasis: {
-                        show: true
-                    }
-                },
-                symbol: 'circle',
-                symbolSize: node_size[i],
-                itemStyle: {
-                    normal: {
-                        show: false,
-                        color: '#f00'
-                    }
-                },
-                data: chinaDatas.map(function() {
-                    return {
-                        value: chinaGeoCoordMap[i].concat(0)
-                    };
-                }),
-                
-            });
-        }
-    }
-
-    option = {
-        tooltip: {
-            trigger: 'item',
-            backgroundColor: 'rgba(166, 200, 76, 0.82)',
-            borderColor: '#FFFFCC',
-            showDelay: 0,
-            hideDelay: 0,
-            enterable: true,
-            transitionDuration: 0,
-            extraCssText: 'z-index:100',
-            formatter: function(params, ticket, callback) {
-                var res = "";
-                var name = params.name;
-                var value = params.value[params.seriesIndex + 1];
-                res = "<span style='color:#fff;'>" + name + "</span><br/>数据：" + value;
-                return res;
-            }
-        },
-        backgroundColor:"#013954",
-        visualMap: { //图例值控制
-            min: 0,
-            max: 1,
-            calculable: true,
-            show: true,
-            color: ['#f44336', '#fc9700', '#ffde00', '#ffde00', '#00eaff'],
-            textStyle: {
-                color: '#fff'
-            }
-        },
-        geo: {
-            map: 'china',
-            zoom: 1.6,
-            center: [115.98561551896913, 33.205000490896193],
-            label: {
-                emphasis: {
-                    show: false
-                }
-            },
-            roam: true, //是否允许缩放
-            itemStyle: {
-                normal: {
-                    color: 'rgba(51, 69, 89, .5)', //地图背景色
-                    borderColor: '#516a89', //省市边界线00fcff 516a89
-                    borderWidth: 1
-                },
-                emphasis: {
-                    color: 'rgba(37, 43, 61, .5)' //悬浮背景
-                }
-            }
-        },
-        series: series
-        };
-
-        myChart.setOption(option);
-
-        myChart.on('click', function (params) {
-            console.log(params.componentIndex)
-            if (params.componentSubType === 'effectScatter') {
-                // todo...
-                console.log('go');
-                }
-            }
-        )
-}
-
-// $.ajax({
-//     type: 'POST',
-//     url: 'http://127.0.0.1:5000/data',
-//     dataType: "jsonp",  
-//     success: function (res) {
-//         console.log(res);
-//         // optionFactory(res);
-//     },
-//     error: function (msg) {
-//         console.log(msg);
-//     }
-// });
-
-$(document).ready(function(){
-    $("#origin").on('change',function(){
-        var objS=document.getElementById('origin');
-        objS=objS.options[objS.selectedIndex].value;
-        var objQ=document.getElementById('destination');
-        objQ=objQ.options[objQ.selectedIndex].value;
-        var objM=document.getElementById('value1');
-        objM=objM.options[objM.selectedIndex].value;
-        objM=parseInt(objM);
-
-        var tag=objS+'-'+objQ;
-        $.ajax({
-            type: 'GET',
-            url:"http://127.0.0.1:5000/data",
-            dataType: "jsonp",  
-            success:function(res){ 
-                optionFactory(res[objM][tag],parseInt(objS),parseInt(objQ));
-            },
-            error: function (msg) {
-                console.log(msg);
-            }
-        });
-    });
-});
-
-$(document).ready(function(){
-    $("#destination").on('change',function(){
-        var objS=document.getElementById('origin');
-        objS=objS.options[objS.selectedIndex].value;
-        var objQ=document.getElementById('destination');
-        objQ=objQ.options[objQ.selectedIndex].value;
-        var objM=document.getElementById('value1');
-        objM=objM.options[objM.selectedIndex].value;
-        objM=parseInt(objM);
-        var tag=objS+'-'+objQ;
-        $.ajax({
-            type: 'GET',
-            url:"http://127.0.0.1:5000/data",
-            dataType: "jsonp",  
-            success:function(res){ 
-                optionFactory(res[objM][tag],parseInt(objS),parseInt(objQ));
-            },
-            error: function (msg) {
-                console.log(msg);
-            }
-        });
-    });
-});
-
-$(document).ready(function(){
-    $("#value1").on('change',function(){
-        var objS=document.getElementById('origin');
-        objS=objS.options[objS.selectedIndex].value;
-        var objQ=document.getElementById('destination');
-        objQ=objQ.options[objQ.selectedIndex].value;
-        var objM=document.getElementById('value1');
-        objM=objM.options[objM.selectedIndex].value;
-        objM=parseInt(objM);
-        var tag=objS+'-'+objQ;
-        $.ajax({
-            type: 'GET',
-            url:"http://127.0.0.1:5000/data",
-            dataType: "jsonp",  
-            success:function(res){ 
-                optionFactory(res[objM][tag],parseInt(objS),parseInt(objQ));
-            },
-            error: function (msg) {
-                console.log(msg);
-            }
-        });
-    });
-});
-
-</script>
-
-<script>
-    function update(){
-        var param1 = $("#param1").val();
-        var param2 = $("#param2").val();
-        var param3 = $("#param3").val();
-        var param4 = $("#param4").val();
-
-        var objS=document.getElementById('origin');
-        objS=objS.options[objS.selectedIndex].value;
-        var objQ=document.getElementById('destination');
-        objQ=objQ.options[objQ.selectedIndex].value;
-        var tag=objS+'-'+objQ;
-
-        $.ajax({
-            type: 'POST',
-            url: 'http://127.0.0.1:5000/allroute',
-            data: JSON.stringify({'param1': param1, 'param2': param2, 'param3': param3, 'param4': param4}),
-            dataType: "jsonp",
-            contentType: "application/json; charset=utf-8",
-            success: function (res) {
-                optionFactory(res[tag],parseInt(objS),parseInt(objQ));
-            },
-            error: function (msg) {
-                console.log(msg);
-            }
-        });
-    }
-</script>
-
 </body>
 
 </html>
