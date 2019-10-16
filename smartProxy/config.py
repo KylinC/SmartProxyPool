@@ -1,28 +1,28 @@
-# Scheduler 开关
+# Scheduler Switch
 TESTER_ENABLED = True
 GETTER_ENABLED = True
 API_ENABLED = True
 
-# 检查周期
+# Check Loop
 TESTER_CYCLE = 20
-# 获取周期
+# CRAWLER Loop
 GETTER_CYCLE = 300
 
-# API配置
+# API Configuration
 API_HOST = '127.0.0.1'
-API_PORT = 5000
+API_PORT = 5000                 ##### Flask Configuration
 
-# 目标网站
-TEST_URL = 'http://www.baidu.com'
+# Aim Website
+TEST_URL = 'http://www.baidu.com'     ##### Aim Website you want to crawler
 
-# Redis数据库地址
-REDIS_HOST = '127.0.0.1'
+# Redis Database locstion
+REDIS_HOST = '127.0.0.1'         ###### Support Your Remote Redis Database
 
-# Redis端口
+# Redis port
 REDIS_PORT = 6379
 
-# Redis密码，default = None
-REDIS_PASSWORD = "passpass"
+# Redis password，default = None
+REDIS_PASSWORD = "YourPassword"         ##### Change to Your Redis Password
 REDIS_KEY = 'proxies'
 
 # selection initial ruler
@@ -33,14 +33,14 @@ INITIAL_SCORE = 10
 # selection parameter
 RANDOM_INTERVAL = [90, 100]
 
-# 代理池数量界限
+# redis mox data number
 POOL_UPPER_THRESHOLD = 50000
 
-# 响应码
+# accept response code
 VALID_STATUS_CODES = [200, 302]
 
-# 最大批测试量
+# ip test batch
 BATCH_TEST_SIZE = 10
 
-# 百度AK
-AK = "YcWN18KNNobNMU9NPt7NIGUF3eMdR1NS"
+# baiduMap AK
+AK = "YourAK"  #### Change to your Baidu Map API AK
