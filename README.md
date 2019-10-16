@@ -2,7 +2,7 @@
 
 >  A complete-auto IP pool, provider IP location visualization. 
 >
->  网络爬虫IP池自动筛选系统
+>  并行网络爬虫IP池自动筛选系统
 
 <img src='https://img.shields.io/badge/python-3.5.7-blue.svg'  align='left' style=' width:100px'/></br>
 
